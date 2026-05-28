@@ -369,59 +369,6 @@
     to { opacity: 0; transform: translateX(50px); }
   }
 
-  /* ====== 奖项列表 ====== */
-  #prize-list {
-    position: absolute;
-    left: 16px;
-    top: 140px;
-    z-index: 50;
-    width: 200px;
-    color: #fff;
-    pointer-events: auto;
-  }
-  #prize-list .prize-item {
-    background: rgba(20, 4, 60, 0.65);
-    border: 1px solid rgba(191, 123, 255, 0.4);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    backdrop-filter: blur(6px);
-  }
-  #prize-list .prize-item:hover {
-    border-color: #ffdb3b;
-    transform: translateX(4px);
-  }
-  #prize-list .prize-item.active {
-    border-color: #ffdb3b;
-    background: rgba(255, 219, 59, 0.15);
-    box-shadow: 0 0 18px rgba(255, 219, 59, 0.4);
-  }
-  #prize-list .prize-name {
-    font-size: 16px;
-    font-weight: bold;
-    color: #ffdb3b;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  #prize-list .prize-count {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-top: 4px;
-  }
-  #prize-list .prize-status {
-    font-size: 11px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background: rgba(127, 255, 127, 0.2);
-    color: #aaffaa;
-  }
-  #prize-list .prize-status.used {
-    background: rgba(255, 127, 127, 0.2);
-    color: #ffaaaa;
-  }
 
   /* ====== 顶部右侧操作 ====== */
   .top-actions {
@@ -549,57 +496,6 @@
     letter-spacing: 2px;
   }
 
-  /* ====== 奖项人数编辑 ====== */
-  #prize-list .prize-edit {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 6px;
-  }
-  #prize-list .prize-edit button {
-    width: 22px;
-    height: 22px;
-    border-radius: 4px;
-    border: 1px solid rgba(255, 219, 59, 0.5);
-    background: rgba(255, 219, 59, 0.08);
-    color: #ffdb3b;
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-  #prize-list .prize-edit button:hover:not(:disabled) {
-    background: rgba(255, 219, 59, 0.25);
-    transform: scale(1.1);
-  }
-  #prize-list .prize-edit button:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-  #prize-list .prize-edit input {
-    width: 42px;
-    height: 22px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(191, 123, 255, 0.4);
-    color: #ffdb3b;
-    text-align: center;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-    outline: none;
-  }
-  #prize-list .prize-edit input:focus {
-    border-color: #ffdb3b;
-  }
-  #prize-list .prize-edit .lab {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.5);
-    margin-right: 2px;
-  }
 
   /* ====== 撒花 canvas ====== */
   #confetti-canvas {
@@ -668,9 +564,6 @@
   <div class="db" id="winner-list-body"></div>
 </div>
 
-<!-- 奖项列表 -->
-<div id="prize-list" style="display:none"></div>
-
 <!-- 头部标题 -->
 <div class="header" id="header" style="display:none">
   <h2 id="title-text">大明内阁六部御前奏对</h2>
@@ -699,53 +592,2586 @@
  * ========================================================================*/
 const CONFIG = {
   MAX_COLS: 17,             // 每行最大显示卡片数
-  GRID_ROWS: 6,             // 网格行数（降到 6 减少卡片数量，提升性能）
-  MAX_CARDS: 120,           // 卡片硬上限，超过会严重影响 CSS3D 性能
   CARD_W: 120,
   CARD_H: 160,
   SPHERE_R: 800,
   CAMERA_Z: 3000,
-  SINGLE_TIME_MAX_PERSON: 30, // 单次最多抽多少人
+  DRAW_COUNT_PER_ROUND: 6,    // 每轮固定抽取人数
 };
 
 /* ========================================================================
  * 默认演示名单
  * ========================================================================*/
 const DEFAULT_PERSONS = [
-  ['U100156001','朱厚熜','皇室','万岁爷'], ['U100156002','朱载垕','皇室','裕王'],
-  ['U100156003','朱翊钧','皇室','裕王世子'], ['U100156004','严嵩','内阁','首辅'],
-  ['U100156005','徐阶','内阁','次辅、户部尚书'], ['U100156006','张居正','内阁','阁臣、兵部侍郎'],
-  ['U100156007','高拱','内阁','阁臣、户部侍郎'], ['U100156008','严世蕃','内阁','吏部侍郎'],
-  ['U100156009','胡宗宪','大臣','浙直总督'], ['U100156010','戚继光','大臣','都督佥事'],
-  ['U100156011','高瀚文','大臣','杭州知府'], ['U100156012','赵贞吉','大臣','江苏巡抚'],
-  ['U100156013','海瑞','大臣','淳安知县'], ['U100156014','何茂才','大臣','浙江布政使兼按察使'],
-  ['U100156015','郑泌昌','大臣','浙江巡抚'], ['U100156016','王用汲','大臣','建德知县'],
-  ['U100156017','谭纶','大臣','浙直总督府参军'], ['U100156018','朱七','大臣','北镇抚司'],
-  ['U100156019','罗龙文','大臣','通政使司通政使'], ['U100156020','马宁远','大臣','杭州知府'],
-  ['U100156021','田有禄','大臣','淳安县丞'], ['U100156022','周云逸','大臣','钦天监监正'],
-  ['U100156023','蒋千户','大臣','浙江按察使司'], ['U100156024','徐千户','大臣','浙江按察使司'],
-  ['U100156025','王牢头','大臣','牢头'], ['U100156026','赵班头','大臣','班头'],
-  ['U100156027','吕芳','太监','掌印太监'], ['U100156028','杨金水','太监','织造局'],
-  ['U100156029','陈洪','太监','首席秉笔太监'], ['U100156030','黄锦','太监','秉笔太监'],
-  ['U100156031','李玄','太监','新安江河道监管'], ['U100156032','冯保','太监','世子大伴'],
-  ['U100156033','李时珍','江湖','名医'], ['U100156034','沈一石','江湖','商人'],
-  ['U100156035','井上十四郎','江湖','倭寇'], ['U100156036','芸娘','江湖',''],
-].map((p, i) => ({
-  id: i,
-  uid: p[0],
-  name: p[1],
-  department: p[2],
-  identity: p[3],
-}));
-
-/* ========================================================================
- * 默认奖项
- * ========================================================================*/
-const DEFAULT_PRIZES = [
-  { id: '001', name: '三等奖', count: 3, isUsedCount: 0, isUsed: false, sort: 1 },
-  { id: '002', name: '二等奖', count: 2, isUsedCount: 0, isUsed: false, sort: 2 },
-  { id: '003', name: '一等奖', count: 1, isUsedCount: 0, isUsed: false, sort: 3 },
-  { id: '004', name: '超级大奖', count: 1, isUsedCount: 0, isUsed: false, sort: 4 },
+  {
+    "id": 0,
+    "uid": "STU0001",
+    "name": "庄恒睿",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 1,
+    "uid": "STU0002",
+    "name": "周俊豪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 2,
+    "uid": "STU0003",
+    "name": "钟美玉",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 3,
+    "uid": "STU0004",
+    "name": "郑凯文",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 4,
+    "uid": "STU0005",
+    "name": "赵烨盛",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 5,
+    "uid": "STU0006",
+    "name": "赵思雨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 6,
+    "uid": "STU0007",
+    "name": "赵峻艺",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 7,
+    "uid": "STU0008",
+    "name": "张峻铭",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 8,
+    "uid": "STU0009",
+    "name": "袁子涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 9,
+    "uid": "STU0010",
+    "name": "余旭明",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 10,
+    "uid": "STU0011",
+    "name": "姚云海",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 11,
+    "uid": "STU0012",
+    "name": "杨子瑞",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 12,
+    "uid": "STU0013",
+    "name": "杨熹雨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 13,
+    "uid": "STU0014",
+    "name": "徐飞扬",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 14,
+    "uid": "STU0015",
+    "name": "熊宇萱",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 15,
+    "uid": "STU0016",
+    "name": "谢佩颖",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 16,
+    "uid": "STU0017",
+    "name": "向麟其",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 17,
+    "uid": "STU0018",
+    "name": "王周瑞",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 18,
+    "uid": "STU0019",
+    "name": "王琳玥",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 19,
+    "uid": "STU0020",
+    "name": "王浩霖",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 20,
+    "uid": "STU0021",
+    "name": "汪睿杰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 21,
+    "uid": "STU0022",
+    "name": "田雨鑫",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 22,
+    "uid": "STU0023",
+    "name": "舒雨萱",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 23,
+    "uid": "STU0024",
+    "name": "瞿荣轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 24,
+    "uid": "STU0025",
+    "name": "祁晋鹏",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 25,
+    "uid": "STU0026",
+    "name": "蒲俊豪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 26,
+    "uid": "STU0027",
+    "name": "彭芸熙",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 27,
+    "uid": "STU0028",
+    "name": "欧阳含印",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 28,
+    "uid": "STU0029",
+    "name": "毛宇扬",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 29,
+    "uid": "STU0030",
+    "name": "吕尚",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 30,
+    "uid": "STU0031",
+    "name": "刘有轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 31,
+    "uid": "STU0032",
+    "name": "刘奕岑",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 32,
+    "uid": "STU0033",
+    "name": "刘婉欣",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 33,
+    "uid": "STU0034",
+    "name": "廖欣然",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 34,
+    "uid": "STU0035",
+    "name": "李卓霄",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 35,
+    "uid": "STU0036",
+    "name": "李雅婷",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 36,
+    "uid": "STU0037",
+    "name": "冷卓玲",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 37,
+    "uid": "STU0038",
+    "name": "胡杨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 38,
+    "uid": "STU0039",
+    "name": "胡芮",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 39,
+    "uid": "STU0040",
+    "name": "何庆龄",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 40,
+    "uid": "STU0041",
+    "name": "高梓轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 41,
+    "uid": "STU0042",
+    "name": "付浩杰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 42,
+    "uid": "STU0043",
+    "name": "冯瑞",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 43,
+    "uid": "STU0044",
+    "name": "陈屿雅雪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 44,
+    "uid": "STU0045",
+    "name": "陈焕鹏",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 45,
+    "uid": "STU0046",
+    "name": "庄子恒",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 46,
+    "uid": "STU0047",
+    "name": "周诗晗",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 47,
+    "uid": "STU0048",
+    "name": "赵悦含",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 48,
+    "uid": "STU0049",
+    "name": "张垠生",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 49,
+    "uid": "STU0050",
+    "name": "张博涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 50,
+    "uid": "STU0051",
+    "name": "尹竣北",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 51,
+    "uid": "STU0052",
+    "name": "杨雨鑫",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 52,
+    "uid": "STU0053",
+    "name": "杨力彰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 53,
+    "uid": "STU0054",
+    "name": "杨馥豫",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 54,
+    "uid": "STU0055",
+    "name": "徐乙雯",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 55,
+    "uid": "STU0056",
+    "name": "肖汶兴",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 56,
+    "uid": "STU0057",
+    "name": "韦洺杰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 57,
+    "uid": "STU0058",
+    "name": "王奕朵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 58,
+    "uid": "STU0059",
+    "name": "王诗涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 59,
+    "uid": "STU0060",
+    "name": "王浩然",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 60,
+    "uid": "STU0061",
+    "name": "王浩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 61,
+    "uid": "STU0062",
+    "name": "汪鑫懿",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 62,
+    "uid": "STU0063",
+    "name": "任正轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 63,
+    "uid": "STU0064",
+    "name": "蒲奕霖",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 64,
+    "uid": "STU0065",
+    "name": "蒲泓豪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 65,
+    "uid": "STU0066",
+    "name": "潘君皓",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 66,
+    "uid": "STU0067",
+    "name": "马玥菡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 67,
+    "uid": "STU0068",
+    "name": "刘伊晨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 68,
+    "uid": "STU0069",
+    "name": "刘轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 69,
+    "uid": "STU0070",
+    "name": "刘立行",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 70,
+    "uid": "STU0071",
+    "name": "凌子涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 71,
+    "uid": "STU0072",
+    "name": "李宇轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 72,
+    "uid": "STU0073",
+    "name": "李思语",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 73,
+    "uid": "STU0074",
+    "name": "李承炫",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 74,
+    "uid": "STU0075",
+    "name": "冷婧",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 75,
+    "uid": "STU0076",
+    "name": "兰天",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 76,
+    "uid": "STU0077",
+    "name": "柯玥彤",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 77,
+    "uid": "STU0078",
+    "name": "姜欢睿",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 78,
+    "uid": "STU0079",
+    "name": "姬菱歌",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 79,
+    "uid": "STU0080",
+    "name": "胡懿轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 80,
+    "uid": "STU0081",
+    "name": "侯欣邑",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 81,
+    "uid": "STU0082",
+    "name": "何翰洋",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 82,
+    "uid": "STU0083",
+    "name": "韩文轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 83,
+    "uid": "STU0084",
+    "name": "龚勋",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 84,
+    "uid": "STU0085",
+    "name": "方怡茹",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 85,
+    "uid": "STU0086",
+    "name": "邓茜",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 86,
+    "uid": "STU0087",
+    "name": "邓菁",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 87,
+    "uid": "STU0088",
+    "name": "陈子恩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 88,
+    "uid": "STU0089",
+    "name": "陈延续",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 89,
+    "uid": "STU0090",
+    "name": "曾怡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 90,
+    "uid": "STU0091",
+    "name": "蔡家峻",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 91,
+    "uid": "STU0092",
+    "name": "刘骏松",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 92,
+    "uid": "STU0093",
+    "name": "骆玥琳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 93,
+    "uid": "STU0094",
+    "name": "吴争阳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 94,
+    "uid": "STU0095",
+    "name": "钟晋川",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 95,
+    "uid": "STU0096",
+    "name": "肖梦洁",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 96,
+    "uid": "STU0097",
+    "name": "何 洋",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 97,
+    "uid": "STU0098",
+    "name": "罗兴锐",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 98,
+    "uid": "STU0099",
+    "name": "程宇航",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 99,
+    "uid": "STU0100",
+    "name": "黄珞娓",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 100,
+    "uid": "STU0101",
+    "name": "宋晟熙",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 101,
+    "uid": "STU0102",
+    "name": "杜承宇",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 102,
+    "uid": "STU0103",
+    "name": "董佳雯",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 103,
+    "uid": "STU0104",
+    "name": "冯梓涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 104,
+    "uid": "STU0105",
+    "name": "张晓乐",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 105,
+    "uid": "STU0106",
+    "name": "何雨谚",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 106,
+    "uid": "STU0107",
+    "name": "吴沛菡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 107,
+    "uid": "STU0108",
+    "name": "陈芯怡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 108,
+    "uid": "STU0109",
+    "name": "朱豫",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 109,
+    "uid": "STU0110",
+    "name": "吴宏基",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 110,
+    "uid": "STU0111",
+    "name": "吴棂浣",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 111,
+    "uid": "STU0112",
+    "name": "周静姝",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 112,
+    "uid": "STU0113",
+    "name": "卢思皓",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 113,
+    "uid": "STU0114",
+    "name": "樊睿",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 114,
+    "uid": "STU0115",
+    "name": "潘艺格",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 115,
+    "uid": "STU0116",
+    "name": "欧阳葆媖",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 116,
+    "uid": "STU0117",
+    "name": "王雯麟",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 117,
+    "uid": "STU0118",
+    "name": "陈柚霖",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 118,
+    "uid": "STU0119",
+    "name": "蒋卓雅",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 119,
+    "uid": "STU0120",
+    "name": "罗诗涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 120,
+    "uid": "STU0121",
+    "name": "潘熙文",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 121,
+    "uid": "STU0122",
+    "name": "陈娅楠",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 122,
+    "uid": "STU0123",
+    "name": "王赛依",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 123,
+    "uid": "STU0124",
+    "name": "蒋源",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 124,
+    "uid": "STU0125",
+    "name": "谭鑫瑞",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 125,
+    "uid": "STU0126",
+    "name": "邓予妍",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 126,
+    "uid": "STU0127",
+    "name": "唐怡菓",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 127,
+    "uid": "STU0128",
+    "name": "古明宇",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 128,
+    "uid": "STU0129",
+    "name": "刘冯地文",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 129,
+    "uid": "STU0130",
+    "name": "吴叙李",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 130,
+    "uid": "STU0131",
+    "name": "王理",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 131,
+    "uid": "STU0132",
+    "name": "莫逸凡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 132,
+    "uid": "STU0133",
+    "name": "李子林",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 133,
+    "uid": "STU0134",
+    "name": "蒲俊霖",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 134,
+    "uid": "STU0135",
+    "name": "王锦睿",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 135,
+    "uid": "STU0136",
+    "name": "钟承佑",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 136,
+    "uid": "STU0137",
+    "name": "王禹锡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 137,
+    "uid": "STU0138",
+    "name": "熊子鹏",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 138,
+    "uid": "STU0139",
+    "name": "曾麟云",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 139,
+    "uid": "STU0140",
+    "name": "邓媛兮",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 140,
+    "uid": "STU0141",
+    "name": "陈婉晗",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 141,
+    "uid": "STU0142",
+    "name": "陈晨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 142,
+    "uid": "STU0143",
+    "name": "罗曦",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 143,
+    "uid": "STU0144",
+    "name": "潘嘉懿",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 144,
+    "uid": "STU0145",
+    "name": "李婉溪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 145,
+    "uid": "STU0146",
+    "name": "李雨珊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 146,
+    "uid": "STU0147",
+    "name": "叶欣宜",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 147,
+    "uid": "STU0148",
+    "name": "欧瑾轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 148,
+    "uid": "STU0149",
+    "name": "李钧彤",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 149,
+    "uid": "STU0150",
+    "name": "严梓瑞",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 150,
+    "uid": "STU0151",
+    "name": "叶栖嘉",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 151,
+    "uid": "STU0152",
+    "name": "王梓涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 152,
+    "uid": "STU0153",
+    "name": "罗昊羽",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 153,
+    "uid": "STU0154",
+    "name": "吴嘉鑫",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 154,
+    "uid": "STU0155",
+    "name": "白雪峰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 155,
+    "uid": "STU0156",
+    "name": "罗琴缨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 156,
+    "uid": "STU0157",
+    "name": "陈钰彤",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 157,
+    "uid": "STU0158",
+    "name": "张馨月",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 158,
+    "uid": "STU0159",
+    "name": "庞恒毅",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 159,
+    "uid": "STU0160",
+    "name": "张倬晗",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 160,
+    "uid": "STU0161",
+    "name": "陈韵羽",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 161,
+    "uid": "STU0162",
+    "name": "王佳欣",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 162,
+    "uid": "STU0163",
+    "name": "侯睿哲",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 163,
+    "uid": "STU0164",
+    "name": "李君昊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 164,
+    "uid": "STU0165",
+    "name": "汪芷伊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 165,
+    "uid": "STU0166",
+    "name": "庞芮馨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 166,
+    "uid": "STU0167",
+    "name": "张懿懋",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 167,
+    "uid": "STU0168",
+    "name": "向政旭",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 168,
+    "uid": "STU0169",
+    "name": "刘家瑞",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 169,
+    "uid": "STU0170",
+    "name": "孟恬雨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 170,
+    "uid": "STU0171",
+    "name": "曾萌",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 171,
+    "uid": "STU0172",
+    "name": "李瑞杰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 172,
+    "uid": "STU0173",
+    "name": "吴彦樵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 173,
+    "uid": "STU0174",
+    "name": "韩一鸣",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 174,
+    "uid": "STU0175",
+    "name": "曾芷菱",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 175,
+    "uid": "STU0176",
+    "name": "黄天灏",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 176,
+    "uid": "STU0177",
+    "name": "胡江宇",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 177,
+    "uid": "STU0178",
+    "name": "胡邱浩然",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 178,
+    "uid": "STU0179",
+    "name": "林方景焱",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 179,
+    "uid": "STU0180",
+    "name": "李浩洋",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 180,
+    "uid": "STU0181",
+    "name": "包涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 181,
+    "uid": "STU0182",
+    "name": "李英琦",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 182,
+    "uid": "STU0183",
+    "name": "王洛豪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 183,
+    "uid": "STU0184",
+    "name": "冯晨焰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 184,
+    "uid": "STU0185",
+    "name": "唐艺",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 185,
+    "uid": "STU0186",
+    "name": "赵志远",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 186,
+    "uid": "STU0187",
+    "name": "杜诗雨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 187,
+    "uid": "STU0188",
+    "name": "叶梓铃",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 188,
+    "uid": "STU0189",
+    "name": "张佳圳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 189,
+    "uid": "STU0190",
+    "name": "周阅衡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 190,
+    "uid": "STU0191",
+    "name": "段力友",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 191,
+    "uid": "STU0192",
+    "name": "侯全凯",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 192,
+    "uid": "STU0193",
+    "name": "罗曼予",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 193,
+    "uid": "STU0194",
+    "name": "袁睿希",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 194,
+    "uid": "STU0195",
+    "name": "李国豪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 195,
+    "uid": "STU0196",
+    "name": "刘珈邑",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 196,
+    "uid": "STU0197",
+    "name": "乐峻熙",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 197,
+    "uid": "STU0198",
+    "name": "岳炎峰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 198,
+    "uid": "STU0199",
+    "name": "曾琪涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 199,
+    "uid": "STU0200",
+    "name": "贾君皓",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 200,
+    "uid": "STU0201",
+    "name": "张良宇",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 201,
+    "uid": "STU0202",
+    "name": "李欣怡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 202,
+    "uid": "STU0203",
+    "name": "赵子涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 203,
+    "uid": "STU0204",
+    "name": "谢政",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 204,
+    "uid": "STU0205",
+    "name": "赵添晴",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 205,
+    "uid": "STU0206",
+    "name": "张心琪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 206,
+    "uid": "STU0207",
+    "name": "谭孟深",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 207,
+    "uid": "STU0208",
+    "name": "叶睿杰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 208,
+    "uid": "STU0209",
+    "name": "袁浚杰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 209,
+    "uid": "STU0210",
+    "name": "宋子阳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 210,
+    "uid": "STU0211",
+    "name": "陆宸宇",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 211,
+    "uid": "STU0212",
+    "name": "唐沁瑶",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 212,
+    "uid": "STU0213",
+    "name": "许冰洁",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 213,
+    "uid": "STU0214",
+    "name": "梁瑶绮",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 214,
+    "uid": "STU0215",
+    "name": "梁梦瑶",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 215,
+    "uid": "STU0216",
+    "name": "肖丁山",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 216,
+    "uid": "STU0217",
+    "name": "康蕊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 217,
+    "uid": "STU0218",
+    "name": "鲁梦媛",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 218,
+    "uid": "STU0219",
+    "name": "唐博宏",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 219,
+    "uid": "STU0220",
+    "name": "张钦雲",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 220,
+    "uid": "STU0221",
+    "name": "王巧茉",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 221,
+    "uid": "STU0222",
+    "name": "曹如意",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 222,
+    "uid": "STU0223",
+    "name": "路域轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 223,
+    "uid": "STU0224",
+    "name": "廖怡茜",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 224,
+    "uid": "STU0225",
+    "name": "刘峻熙",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 225,
+    "uid": "STU0226",
+    "name": "雷博渊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 226,
+    "uid": "STU0227",
+    "name": "龚鸿雨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 227,
+    "uid": "STU0228",
+    "name": "陈远航",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 228,
+    "uid": "STU0229",
+    "name": "邓瑞然",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 229,
+    "uid": "STU0230",
+    "name": "宋思怡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 230,
+    "uid": "STU0231",
+    "name": "田雨阳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 231,
+    "uid": "STU0232",
+    "name": "邵星瑞",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 232,
+    "uid": "STU0233",
+    "name": "杨春锦",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 233,
+    "uid": "STU0234",
+    "name": "李天宸",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 234,
+    "uid": "STU0235",
+    "name": "代佳欣",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 235,
+    "uid": "STU0236",
+    "name": "于蕊萱",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 236,
+    "uid": "STU0237",
+    "name": "张梓萌",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 237,
+    "uid": "STU0238",
+    "name": "曾玉婷",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 238,
+    "uid": "STU0239",
+    "name": "尚书好",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 239,
+    "uid": "STU0240",
+    "name": "吴雅萱",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 240,
+    "uid": "STU0241",
+    "name": "王紫岩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 241,
+    "uid": "STU0242",
+    "name": "冯少阳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 242,
+    "uid": "STU0243",
+    "name": "王玥婷",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 243,
+    "uid": "STU0244",
+    "name": "郁心蕊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 244,
+    "uid": "STU0245",
+    "name": "李欣宇",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 245,
+    "uid": "STU0246",
+    "name": "刘晋凡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 246,
+    "uid": "STU0247",
+    "name": "罗浩溢",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 247,
+    "uid": "STU0248",
+    "name": "罗曼尹",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 248,
+    "uid": "STU0249",
+    "name": "文泽瀚",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 249,
+    "uid": "STU0250",
+    "name": "王嘉胤",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 250,
+    "uid": "STU0251",
+    "name": "刘青原",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 251,
+    "uid": "STU0252",
+    "name": "林子轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 252,
+    "uid": "STU0253",
+    "name": "刘昌昊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 253,
+    "uid": "STU0254",
+    "name": "任瑞阳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 254,
+    "uid": "STU0255",
+    "name": "朱圣伟",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 255,
+    "uid": "STU0256",
+    "name": "张潇逸",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 256,
+    "uid": "STU0257",
+    "name": "郭欣媛",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 257,
+    "uid": "STU0258",
+    "name": "张雅琪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 258,
+    "uid": "STU0259",
+    "name": "王孟涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 259,
+    "uid": "STU0260",
+    "name": "张警戈",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 260,
+    "uid": "STU0261",
+    "name": "叶紫菡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 261,
+    "uid": "STU0262",
+    "name": "冯路涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 262,
+    "uid": "STU0263",
+    "name": "钟润川",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 263,
+    "uid": "STU0264",
+    "name": "郑福林",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 264,
+    "uid": "STU0265",
+    "name": "王仁睿",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 265,
+    "uid": "STU0266",
+    "name": "赵紫伊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 266,
+    "uid": "STU0267",
+    "name": "詹睿哲",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 267,
+    "uid": "STU0268",
+    "name": "张哲睿",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 268,
+    "uid": "STU0269",
+    "name": "蒋博毅",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 269,
+    "uid": "STU0270",
+    "name": "牟泽茗",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 270,
+    "uid": "STU0271",
+    "name": "郑琰",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 271,
+    "uid": "STU0272",
+    "name": "杨代隆",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 272,
+    "uid": "STU0273",
+    "name": "赵梓鑫",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 273,
+    "uid": "STU0274",
+    "name": "诸葛瑞锦",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 274,
+    "uid": "STU0275",
+    "name": "罗文锴",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 275,
+    "uid": "STU0276",
+    "name": "唐依冉",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 276,
+    "uid": "STU0277",
+    "name": "何梦琪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 277,
+    "uid": "STU0278",
+    "name": "陈建坤",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 278,
+    "uid": "STU0279",
+    "name": "张玉林",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 279,
+    "uid": "STU0280",
+    "name": "王子菡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 280,
+    "uid": "STU0281",
+    "name": "文悦",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 281,
+    "uid": "STU0282",
+    "name": "梁代希",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 282,
+    "uid": "STU0283",
+    "name": "袁睿涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 283,
+    "uid": "STU0284",
+    "name": "何雨潞",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 284,
+    "uid": "STU0285",
+    "name": "刘瑞祺",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 285,
+    "uid": "STU0286",
+    "name": "黄嘉栋",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 286,
+    "uid": "STU0287",
+    "name": "王诗雨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 287,
+    "uid": "STU0288",
+    "name": "罗培维",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 288,
+    "uid": "STU0289",
+    "name": "唐何睿涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 289,
+    "uid": "STU0290",
+    "name": "杨雨晨",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 290,
+    "uid": "STU0291",
+    "name": "李书漫",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 291,
+    "uid": "STU0292",
+    "name": "王议雪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 292,
+    "uid": "STU0293",
+    "name": "蒲禹",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 293,
+    "uid": "STU0294",
+    "name": "何鑫涛",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 294,
+    "uid": "STU0295",
+    "name": "蒋自立",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 295,
+    "uid": "STU0296",
+    "name": "杜岩轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 296,
+    "uid": "STU0297",
+    "name": "王昱涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 297,
+    "uid": "STU0298",
+    "name": "张宝艺",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 298,
+    "uid": "STU0299",
+    "name": "张凯航",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 299,
+    "uid": "STU0300",
+    "name": "孙歆瑶",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 300,
+    "uid": "STU0301",
+    "name": "兰宇俊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 301,
+    "uid": "STU0302",
+    "name": "潘奕帆",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 302,
+    "uid": "STU0303",
+    "name": "张轩豪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 303,
+    "uid": "STU0304",
+    "name": "朱梓涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 304,
+    "uid": "STU0305",
+    "name": "唐博成",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 305,
+    "uid": "STU0306",
+    "name": "任爱",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 306,
+    "uid": "STU0307",
+    "name": "龚洪锦",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 307,
+    "uid": "STU0308",
+    "name": "罗承恩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 308,
+    "uid": "STU0309",
+    "name": "王潇然",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 309,
+    "uid": "STU0310",
+    "name": "凤榆佳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 310,
+    "uid": "STU0311",
+    "name": "毛彦喆",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 311,
+    "uid": "STU0312",
+    "name": "袁家翔",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 312,
+    "uid": "STU0313",
+    "name": "张锦轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 313,
+    "uid": "STU0314",
+    "name": "王子诺",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 314,
+    "uid": "STU0315",
+    "name": "张傲",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 315,
+    "uid": "STU0316",
+    "name": "刘语桐",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 316,
+    "uid": "STU0317",
+    "name": "刘莹煦",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 317,
+    "uid": "STU0318",
+    "name": "徐正",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 318,
+    "uid": "STU0319",
+    "name": "冷致远",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 319,
+    "uid": "STU0320",
+    "name": "徐茂聆",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 320,
+    "uid": "STU0321",
+    "name": "罗晞兮",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 321,
+    "uid": "STU0322",
+    "name": "伍笑阳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 322,
+    "uid": "STU0323",
+    "name": "周诗涵",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 323,
+    "uid": "STU0324",
+    "name": "王廷豪",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 324,
+    "uid": "STU0325",
+    "name": "蒲星宇",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 325,
+    "uid": "STU0326",
+    "name": "苏娅楠",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 326,
+    "uid": "STU0327",
+    "name": "孙雨桐",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 327,
+    "uid": "STU0328",
+    "name": "段鑫磊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 328,
+    "uid": "STU0329",
+    "name": "甘莘茹",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 329,
+    "uid": "STU0330",
+    "name": "代新宇",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 330,
+    "uid": "STU0331",
+    "name": "金琳林",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 331,
+    "uid": "STU0332",
+    "name": "王皓宇",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 332,
+    "uid": "STU0333",
+    "name": "罗凤昊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 333,
+    "uid": "STU0334",
+    "name": "丁弈恒",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 334,
+    "uid": "STU0335",
+    "name": "张倍苠",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 335,
+    "uid": "STU0336",
+    "name": "秦茹汐",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 336,
+    "uid": "STU0337",
+    "name": "朱洪辉",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 337,
+    "uid": "STU0338",
+    "name": "袁怡佳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 338,
+    "uid": "STU0339",
+    "name": "彭涛",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 339,
+    "uid": "STU0340",
+    "name": "邱文欣",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 340,
+    "uid": "STU0341",
+    "name": "陈俊竹",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 341,
+    "uid": "STU0342",
+    "name": "曾雨桐",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 342,
+    "uid": "STU0343",
+    "name": "张雨琦",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 343,
+    "uid": "STU0344",
+    "name": "刘思思",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 344,
+    "uid": "STU0345",
+    "name": "周民人",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 345,
+    "uid": "STU0346",
+    "name": "邓若怡",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 346,
+    "uid": "STU0347",
+    "name": "李薇",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 347,
+    "uid": "STU0348",
+    "name": "李昊轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 348,
+    "uid": "STU0349",
+    "name": "刘芠瑾",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 349,
+    "uid": "STU0350",
+    "name": "谭孟峻",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 350,
+    "uid": "STU0351",
+    "name": "潘仁祥",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 351,
+    "uid": "STU0352",
+    "name": "何瑞钦",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 352,
+    "uid": "STU0353",
+    "name": "耿盼盼",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 353,
+    "uid": "STU0354",
+    "name": "李子轩",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 354,
+    "uid": "STU0355",
+    "name": "李高睿",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 355,
+    "uid": "STU0356",
+    "name": "查昀佟",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 356,
+    "uid": "STU0357",
+    "name": "方志睿",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 357,
+    "uid": "STU0358",
+    "name": "张岩琳",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 358,
+    "uid": "STU0359",
+    "name": "贵浩闻",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 359,
+    "uid": "STU0360",
+    "name": "罗浩然",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 360,
+    "uid": "STU0361",
+    "name": "夏紫榆",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 361,
+    "uid": "STU0362",
+    "name": "徐渭东",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 362,
+    "uid": "STU0363",
+    "name": "梁芯蕊",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 363,
+    "uid": "STU0364",
+    "name": "李昊霖",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 364,
+    "uid": "STU0365",
+    "name": "蒋佩瑶",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 365,
+    "uid": "STU0366",
+    "name": "刘桐源",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  },
+  {
+    "id": 366,
+    "uid": "STU0367",
+    "name": "余亚威",
+    "department": "电子科技大学实验中学（尚丰校区）",
+    "identity": "学生"
+  }
 ];
 
 /* ========================================================================
@@ -760,8 +3186,9 @@ const STATE = {
 
 let allPersons = [];      // 所有人
 let alreadyWinners = [];  // 已中奖
-let prizes = JSON.parse(JSON.stringify(DEFAULT_PRIZES));
-let currentPrizeIndex = 0;
+let winnerUidSet = new Set();
+let winnerNameSet = new Set();
+let drawRound = 0;
 let currentStatus = STATE.INIT;
 
 let scene, camera, renderer, controls;
@@ -772,6 +3199,7 @@ let luckyCardIndexList = [];
 let intervalTimer = null;
 let canOperate = true;
 let animationId = null;
+let isPointerInteracting = false;
 
 /* ========================================================================
  * 工具函数
@@ -958,30 +3386,23 @@ function downloadTemplate() {
  * 初始化 3D
  * ========================================================================*/
 function generateTableData(persons) {
-  // 性能优先：每行不超过 MAX_COLS，并限制卡片总数
+  // 展示全量名单：每个人对应一张卡片
   const screenW = window.innerWidth;
   const fitCols = Math.max(8, Math.floor((screenW - 80) / (CONFIG.CARD_W + 20)));
   const cols = Math.min(CONFIG.MAX_COLS, fitCols);
-  let targetCount = Math.min(CONFIG.MAX_CARDS, cols * CONFIG.GRID_ROWS);
-  let table = [];
-  if (persons.length < targetCount) {
-    while (table.length < targetCount) {
-      table = table.concat(persons.map(p => ({ ...p })));
-    }
-    table = table.slice(0, targetCount);
-  } else {
-    table = persons.slice(0, targetCount);
-  }
+  const table = persons.map(p => ({ ...p }));
+  const rows = Math.max(1, Math.ceil(table.length / cols));
   table.forEach((p, i) => {
     p.x = (i % cols) + 1;
     p.y = Math.floor(i / cols) + 1;
     p.id = i;
   });
-  return { table, cols };
+  return { table, cols, rows };
 }
 
 let tableData = [];
 let gridCols = 17;
+let gridRows = 6;
 
 function createCardElement(person) {
   const el = document.createElement('div');
@@ -1023,6 +3444,8 @@ function init3D() {
   controls.minDistance = 500;
   controls.maxDistance = 6000;
   controls.addEventListener('change', requestRender);
+  renderer.domElement.addEventListener('pointerdown', () => { isPointerInteracting = true; });
+  window.addEventListener('pointerup', () => { isPointerInteracting = false; });
 
   // 创建所有 CSS3DObject
   objects = [];
@@ -1041,7 +3464,7 @@ function init3D() {
   tableData.forEach(p => {
     const obj = new THREE.Object3D();
     obj.position.x = p.x * (CONFIG.CARD_W + 20) - gridCols * (CONFIG.CARD_W + 20) / 2 - (CONFIG.CARD_W + 20) / 2;
-    obj.position.y = -p.y * (CONFIG.CARD_H + 16) + (CONFIG.GRID_ROWS * (CONFIG.CARD_H + 16)) / 2;
+    obj.position.y = -p.y * (CONFIG.CARD_H + 16) + (gridRows * (CONFIG.CARD_H + 16)) / 2;
     obj.position.z = 0;
     targets.table.push(obj);
   });
@@ -1087,7 +3510,7 @@ function render() {
 function animate() {
   // 仅在有动画或被请求时才渲染，节省大量 CSS3D 重绘成本
   const hasTween = TWEEN.update();          // 返回 true 表示还有活跃 tween
-  if (controls) controls.update();
+  if (controls && isPointerInteracting) controls.update();
   if (hasTween) needsRender = true;
   if (needsRender) {
     render();
@@ -1190,12 +3613,12 @@ function fireConfetti() {
   const duration = 2500;
   const end = Date.now() + duration;
   (function frame() {
-    confetti({ particleCount: 3, angle: 60, spread: 60, origin: { x: 0 } });
-    confetti({ particleCount: 3, angle: 120, spread: 60, origin: { x: 1 } });
+    confetti({ particleCount: 2, angle: 60, spread: 60, origin: { x: 0 } });
+    confetti({ particleCount: 2, angle: 120, spread: 60, origin: { x: 1 } });
     if (Date.now() < end) requestAnimationFrame(frame);
   })();
-  confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-  confetti({ particleCount: 60, spread: 100, decay: 0.91, scalar: 0.9, origin: { y: 0.6 } });
+  confetti({ particleCount: 45, spread: 60, origin: { y: 0.6 } });
+  confetti({ particleCount: 35, spread: 100, decay: 0.91, scalar: 0.9, origin: { y: 0.6 } });
 }
 
 /* ========================================================================
@@ -1233,8 +3656,6 @@ function getCardPosition(totalCount, cardIndex) {
 /* ========================================================================
  * 抽奖流程
  * ========================================================================*/
-function getCurrentPrize() { return prizes[currentPrizeIndex]; }
-
 function enterLottery() {
   if (!canOperate) return;
   canOperate = false;
@@ -1243,7 +3664,7 @@ function enterLottery() {
   restoreFadedCards(); // 恢复上一轮被淡化的卡片
   updateMenu();
   transform(targets.sphere, 1500).then(() => {
-    rollBall(0.1, 2);
+    rollBall(0.03, 3.5);
   });
 }
 
@@ -1267,36 +3688,30 @@ function restoreFadedCards() {
 
 function startLottery() {
   if (!canOperate) return;
-  const prize = getCurrentPrize();
-  if (!prize || prize.isUsed) {
-    toast('当前奖项已抽完，请切换奖项', 'warning');
+  const pool = allPersons.filter(p => {
+    const uidKey = String(p.uid || '').trim();
+    const nameKey = String(p.name || '').trim();
+    if (uidKey && winnerUidSet.has(uidKey)) return false;
+    if (nameKey && winnerNameSet.has(nameKey)) return false;
+    return true;
+  });
+  if (pool.length < CONFIG.DRAW_COUNT_PER_ROUND) {
+    toast(`剩余未中奖人员仅 ${pool.length} 人，不足固定抽取 ${CONFIG.DRAW_COUNT_PER_ROUND} 人`, 'warning');
     return;
   }
-  const pool = allPersons.filter(p => !alreadyWinners.some(w => w.id === p.id));
-  const leftover = Math.max(0, prize.count - prize.isUsedCount);
-  if (leftover <= 0) {
-    prize.isUsed = true;
-    renderPrizeList();
-    toast('当前奖项已抽完', 'warning');
-    return;
-  }
-  if (pool.length < leftover) {
-    toast(`剩余人员仅 ${pool.length} 人，奖项需要 ${leftover} 人`, 'warning');
-    return;
-  }
-  const count = Math.min(leftover, CONFIG.SINGLE_TIME_MAX_PERSON);
+  const count = CONFIG.DRAW_COUNT_PER_ROUND;
   luckyTargets = getRandomElements(pool, count);
-  toast(`开始抽取「${prize.name}」 ${count} 人，按【空格】或点击按钮停止`);
+  toast(`开始抽取 ${count} 人，按【空格】或点击按钮停止`);
   currentStatus = STATE.RUNNING;
   updateMenu();
-  rollBall(10, 5);
+  rollBall(6, 8);
 }
 
 function stopLottery() {
   if (!canOperate && currentStatus !== STATE.RUNNING) return;
   canOperate = false;
   TWEEN.removeAll();
-  rollBall(0, 0.5);
+  rollBall(0, 1);
 
   luckyCardIndexList = [];
 
@@ -1356,30 +3771,18 @@ function stopLottery() {
 
 function continueLottery() {
   if (!canOperate) return;
-  const prize = getCurrentPrize();
-  prize.isUsedCount += luckyTargets.length;
-  if (prize.isUsedCount >= prize.count) {
-    prize.isUsed = true;
-    prize.isUsedCount = prize.count;
-  }
-  alreadyWinners.push(...luckyTargets.map(p => ({ ...p, prizeName: prize.name })));
-  toast(`「${prize.name}」 +${luckyTargets.length}人  共 ${prize.isUsedCount}/${prize.count}`);
+  drawRound += 1;
+  alreadyWinners.push(...luckyTargets.map(p => ({ ...p, batchName: `第${drawRound}轮` })));
+  luckyTargets.forEach(p => {
+    const uidKey = String(p.uid || '').trim();
+    const nameKey = String(p.name || '').trim();
+    if (uidKey) winnerUidSet.add(uidKey);
+    if (nameKey) winnerNameSet.add(nameKey);
+  });
+  toast(`第${drawRound}轮已锁定 ${luckyTargets.length} 人`);
   luckyTargets = [];
   luckyCardIndexList = [];
-  renderPrizeList();
   renderWinnerDrawer();
-
-  // 自动切换到下一个未抽完的奖项
-  if (prize.isUsed) {
-    const next = prizes.findIndex(p => !p.isUsed);
-    if (next >= 0) {
-      currentPrizeIndex = next;
-      renderPrizeList();
-      toast(`已切换至「${prizes[next].name}」`);
-    } else {
-      toast('全部奖项已抽完！', 'warning');
-    }
-  }
   enterLottery();
 }
 
@@ -1429,66 +3832,6 @@ function updateMenu() {
   }
 }
 
-function renderPrizeList() {
-  const wrap = $('#prize-list');
-  wrap.style.display = 'block';
-  wrap.innerHTML = '<div style="font-size:13px;color:#aaa;margin-bottom:8px;letter-spacing:2px">奖 项 列 表</div>';
-  prizes.forEach((p, idx) => {
-    const item = document.createElement('div');
-    item.className = 'prize-item' + (idx === currentPrizeIndex ? ' active' : '');
-    item.innerHTML = `
-      <div class="prize-name">
-        <span>${p.name}</span>
-        <span class="prize-status ${p.isUsed ? 'used' : ''}">${p.isUsed ? '已抽完' : '可抽'}</span>
-      </div>
-      <div class="prize-count">已抽 ${p.isUsedCount} / 总数 ${p.count} 人</div>
-      <div class="prize-edit" data-idx="${idx}">
-        <span class="lab">总数</span>
-        <button class="dec" title="减少 1 人">−</button>
-        <input type="number" class="num" value="${p.count}" min="${p.isUsedCount || 1}" max="999" />
-        <button class="inc" title="增加 1 人">+</button>
-      </div>
-    `;
-    // 切换当前奖项（避免点编辑器触发）
-    item.addEventListener('click', e => {
-      if (e.target.closest('.prize-edit')) return;
-      if (currentStatus !== STATE.INIT && currentStatus !== STATE.READY) {
-        toast('请等待当前抽奖完成', 'warning');
-        return;
-      }
-      currentPrizeIndex = idx;
-      renderPrizeList();
-      toast(`已切换至「${p.name}」`);
-    });
-    // 人数编辑
-    const editBox = item.querySelector('.prize-edit');
-    const input = editBox.querySelector('input');
-    const setCount = (v) => {
-      const minVal = Math.max(1, p.isUsedCount);
-      const newCount = Math.max(minVal, Math.min(999, parseInt(v) || minVal));
-      p.count = newCount;
-      p.isUsed = p.isUsedCount >= p.count;
-      input.value = newCount;
-      renderPrizeList();
-      toast(`「${p.name}」总数已调整为 ${newCount} 人`);
-    };
-    editBox.querySelector('.dec').addEventListener('click', e => {
-      e.stopPropagation();
-      setCount(p.count - 1);
-    });
-    editBox.querySelector('.inc').addEventListener('click', e => {
-      e.stopPropagation();
-      setCount(p.count + 1);
-    });
-    input.addEventListener('click', e => e.stopPropagation());
-    input.addEventListener('change', e => {
-      e.stopPropagation();
-      setCount(input.value);
-    });
-    wrap.appendChild(item);
-  });
-}
-
 /* ====== 中奖名单抽屉 ====== */
 function renderWinnerDrawer() {
   const body = $('#winner-list-body');
@@ -1497,23 +3840,23 @@ function renderWinnerDrawer() {
     body.innerHTML = '<div class="empty-tip">— 还没有中奖记录 —</div>';
     return;
   }
-  // 按奖项分组
+  // 按抽奖轮次分组
   const groups = {};
   alreadyWinners.forEach(w => {
-    const key = w.prizeName || '未知奖项';
+    const key = w.batchName || '未标记轮次';
     if (!groups[key]) groups[key] = [];
     groups[key].push(w);
   });
-  Object.keys(groups).forEach(prize => {
+  Object.keys(groups).forEach(batch => {
     const wrap = document.createElement('div');
     wrap.className = 'winner-group';
     wrap.innerHTML = `
       <div class="winner-group-title">
-        <span>${prize}</span>
-        <span class="group-count">共 ${groups[prize].length} 人</span>
+        <span>${batch}</span>
+        <span class="group-count">共 ${groups[batch].length} 人</span>
       </div>
     `;
-    groups[prize].forEach(w => {
+    groups[batch].forEach(w => {
       const row = document.createElement('div');
       row.className = 'winner-row';
       row.innerHTML = `
@@ -1535,7 +3878,7 @@ function exportWinners() {
   }
   const data = alreadyWinners.map((w, i) => ({
     序号: i + 1,
-    奖项: w.prizeName || '',
+    轮次: w.batchName || '',
     学号: w.uid || '',
     姓名: w.name || '',
     部门: w.department || '',
@@ -1550,13 +3893,13 @@ function exportWinners() {
 }
 
 function resetAll() {
-  prizes = JSON.parse(JSON.stringify(DEFAULT_PRIZES));
   alreadyWinners = [];
+  winnerUidSet = new Set();
+  winnerNameSet = new Set();
   luckyTargets = [];
   luckyCardIndexList = [];
-  currentPrizeIndex = 0;
+  drawRound = 0;
   currentStatus = STATE.INIT;
-  renderPrizeList();
   updateMenu();
   if (objects.length) {
     objects.forEach((obj, i) => {
@@ -1588,14 +3931,18 @@ function startLotterySystem(persons) {
     return;
   }
   allPersons = persons;
-  const { table, cols } = generateTableData(persons);
+  drawRound = 0;
+  alreadyWinners = [];
+  winnerUidSet = new Set();
+  winnerNameSet = new Set();
+  const { table, cols, rows } = generateTableData(persons);
   tableData = table;
   gridCols = cols;
+  gridRows = rows;
 
   $('#upload-mask').style.display = 'none';
   $('#header').style.display = 'flex';
   $('#top-actions').style.display = 'flex';
-  renderPrizeList();
   currentStatus = STATE.INIT;
   init3D();
   randomBallData();
@@ -1604,9 +3951,55 @@ function startLotterySystem(persons) {
 }
 
 /* ========================================================================
+ * 背景音乐（轻量 WebAudio，首次交互后启动）
+ * ========================================================================*/
+let bgmCtx = null;
+let bgmGain = null;
+let bgmTimer = null;
+let bgmStarted = false;
+
+function startBackgroundMusic() {
+  if (bgmStarted) return;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return;
+  try {
+    bgmCtx = new AudioCtx();
+    bgmGain = bgmCtx.createGain();
+    bgmGain.gain.value = 0.03;
+    bgmGain.connect(bgmCtx.destination);
+    const notes = [261.63, 329.63, 392.0, 523.25, 392.0, 329.63];
+    let step = 0;
+    const playNote = () => {
+      if (!bgmCtx) return;
+      const osc = bgmCtx.createOscillator();
+      const gainNode = bgmCtx.createGain();
+      const now = bgmCtx.currentTime;
+      osc.type = 'sine';
+      osc.frequency.value = notes[step % notes.length];
+      gainNode.gain.setValueAtTime(0.0001, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.16, now + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+      osc.connect(gainNode);
+      gainNode.connect(bgmGain);
+      osc.start(now);
+      osc.stop(now + 0.6);
+      step++;
+    };
+    playNote();
+    bgmTimer = setInterval(playNote, 650);
+    bgmStarted = true;
+  } catch (err) {
+    console.warn('BGM 启动失败:', err);
+  }
+}
+
+/* ========================================================================
  * 事件绑定
  * ========================================================================*/
 function bindEvents() {
+  document.addEventListener('pointerdown', startBackgroundMusic, { once: true });
+  document.addEventListener('keydown', startBackgroundMusic, { once: true });
+
   const uploadArea = $('#upload-area');
   const fileInput = $('#file-input');
   const fileInfo = $('#file-info');
@@ -1657,7 +4050,6 @@ function bindEvents() {
     $('#upload-mask').style.display = 'flex';
     $('#header').style.display = 'none';
     $('#top-actions').style.display = 'none';
-    $('#prize-list').style.display = 'none';
     $('#menu').style.display = 'none';
     $('#file-info').textContent = '';
   });
