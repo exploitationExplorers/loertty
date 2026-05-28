@@ -674,12 +674,12 @@
     <canvas id="confetti-canvas"></canvas>
 
     <!-- ============= 依赖 ============= -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/controls/TrackballControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/renderers/CSS3DRenderer.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.6.4/dist/tween.umd.js"></script>
+    <script src="./vendor/xlsx.full.min.js"></script>
+    <script src="./vendor/confetti.browser.min.js"></script>
+    <script src="./vendor/three.min.js"></script>
+    <script src="./vendor/TrackballControls.js"></script>
+    <script src="./vendor/CSS3DRenderer.js"></script>
+    <script src="./vendor/tween.umd.js"></script>
 
     <script>
       /* ========================================================================
@@ -692,7 +692,7 @@
         SPHERE_R: 800,
         CAMERA_Z: 3000,
         DRAW_COUNT_PER_ROUND: 6, // 每轮固定抽取人数
-        MAX_RENDER_CARDS:120 // 最多渲染的卡片数
+        MAX_RENDER_CARDS: 100, // 最多渲染的卡片数
       };
 
       /* ========================================================================
@@ -3979,7 +3979,7 @@
       }
 
       function stopLottery() {
-        if (!canOperate && currentStatus !== STATE.RUNNING) return;
+        if (!canOperate || currentStatus !== STATE.RUNNING) return;
         canOperate = false;
         TWEEN.removeAll();
         rollBall(0, 1);
