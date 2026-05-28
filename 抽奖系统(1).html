@@ -3445,6 +3445,8 @@
             "所属",
             "分组",
             "组别",
+            "学校",
+            "学校名称",
           ],
           identity: [
             "identity",
@@ -3473,7 +3475,7 @@
                 `U${String(100000 + i).padStart(6, "0")}`,
               name: pick(row, aliasMap.name) || `匿名${i + 1}`,
               department: pick(row, aliasMap.department),
-              identity: pick(row, aliasMap.identity),
+              identity: pick(row, aliasMap.identity) || "学生",
             };
           })
           .filter((p) => p.name);
@@ -3508,7 +3510,65 @@
                   cellDates: true,
                 });
                 const ws = wb.Sheets[wb.SheetNames[0]];
-                const arr = XLSX.utils.sheet_to_json(ws);
+                const rawRows = XLSX.utils.sheet_to_json(ws, {
+                  header: 1,
+                  blankrows: false,
+                });
+                const headerIndex = rawRows.findIndex((row) =>
+                  row.some(
+                    (cell) =>
+                      typeof cell === "string" &&
+                      /(姓名|name|Name|名称)/i.test(cell),
+                  ),
+                );
+                let arr;
+                if (headerIndex >= 0) {
+                  const headers = rawRows[headerIndex].map((cell, idx) =>
+                    typeof cell === "string" && cell.trim()
+                      ? cell.trim()
+                      : `col${idx}`,
+                  );
+                  arr = rawRows
+                    .slice(headerIndex + 1)
+                    .filter((row) =>
+                      row.some(
+                        (cell) =>
+                          cell !== null && cell !== undefined && cell !== "",
+                      ),
+                    )
+                    .map((row) => {
+                      const obj = {};
+                      headers.forEach((key, idx) => {
+                        obj[key] = row[idx];
+                      });
+                      return obj;
+                    });
+                } else {
+                  const dataRows = rawRows
+                    .filter((row) =>
+                      row.some(
+                        (cell) =>
+                          cell !== null && cell !== undefined && cell !== "",
+                      ),
+                    )
+                    .map((row) =>
+                      row.map((cell) =>
+                        cell === undefined || cell === null ? "" : cell,
+                      ),
+                    );
+                  if (
+                    dataRows.length > 0 &&
+                    dataRows.every((row) => row.length === 2)
+                  ) {
+                    arr = dataRows.map((row) => ({
+                      department: row[0],
+                      name: row[1],
+                      identity: "学生",
+                    }));
+                  } else {
+                    arr = XLSX.utils.sheet_to_json(ws);
+                  }
+                }
                 resolve(normalizePersons(arr));
               } catch (err) {
                 reject(err);
@@ -3524,10 +3584,10 @@
        * ========================================================================*/
       function downloadTemplate() {
         const data = [
-          { 学号: "U100001", 姓名: "张三", 部门: "一班", 身份: "学生" },
-          { 学号: "U100002", 姓名: "李四", 部门: "一班", 身份: "学生" },
-          { 学号: "U100003", 姓名: "王五", 部门: "二班", 身份: "班长" },
-          { 学号: "U100004", 姓名: "赵六", 部门: "二班", 身份: "学生" },
+          { 学校: "电子科技大学实验中学（尚丰校区）", 姓名: "张三" },
+          { 学校: "电子科技大学实验中学（尚丰校区）", 姓名: "李四" },
+          { 学校: "电子科技大学实验中学（尚丰校区）", 姓名: "王五" },
+          { 学校: "电子科技大学实验中学（尚丰校区）", 姓名: "赵六" },
         ];
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
